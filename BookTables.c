@@ -3,36 +3,37 @@
 #include <stdlib.h>
 #include <string.h>
 
-int user[6][7]={};
-int bookedTables[3][2];
+int user[6][6]={};
+char bookedTables[3][2][24];
+char IDs[6][23];
+char id[23];
 
-int inputId();
-int checkValid(int id);
+void inputId();
+int checkValid(char id[23]);
 void displayAvailableTables();
 int inputTable();
 int inputTime();
-int updateTables(int id, int table, int time);
+int updateTables(char id[23], int table, int time);
 void displayBookedTables();
 
-int main(void) {
+int main(void)
+{
     //example user data added for testing
-for(int i=0;i<4;i++) {
-    user[i][6]=i+1;
-}
+    scanf("%22s",&IDs[0]);
+
     user[0][3]=2;
     user[1][3]=0;
     user[2][3]=1;
     user[3][3]=2;
 
-
     int valid=0;
-    int id=0;
     int table=0;
     int time=0;
     int choice=0;
     // this loop repeats the code, allowing the next user to book a table
     do {
         printf("Would you like to view bookings(0), book a table(1) or quit (2) \n");
+        fflush(stdin);
         scanf("%d",&choice);
         if(choice==2) {
             exit(0);
@@ -41,7 +42,7 @@ for(int i=0;i<4;i++) {
             displayBookedTables();
         }
         if(choice==1) {
-            id=inputId();
+            inputId();
             //this loop checks if the selected table is already booked based on the value returned by updateTables() function
             do {
                 displayAvailableTables();
@@ -55,10 +56,10 @@ return 0;
 }
 
 // returns 0 if the entered id does not exist, 1 if it is a user with breakfast board, and 2 if it is a user with a different board
-int checkValid(int id) {
+int checkValid(char id[23]) {
     //checks if the entered id exists within the system
     for(int i=0;i<6;i++) {
-        if (user[i][6]==id){
+        if (strcmp(id,IDs[i])==0){
             // checks the board of the user
             if(user[i][3]==2) {
                 return 1;
@@ -74,7 +75,7 @@ void displayAvailableTables() {
     printf("Available tables: \n");
 for(int i=0;i<3;i++) {
     for(int j=0;j<2;j++) {
-        if(bookedTables[i][j]==0){
+        if(bookedTables[i][j][0]==0){
         availableTables++;
             switch(i) {
                 case 0:printf("Endor at ");
@@ -83,7 +84,7 @@ for(int i=0;i<3;i++) {
                 break;
                 case 2:printf("Tatooine at ");
                 break;
-                default:
+                default:continue;
 
             }
                 switch(j) {
@@ -91,7 +92,7 @@ for(int i=0;i<3;i++) {
                     break;
                     case 1:printf("9 pm");
                     break;
-                    default:
+                    default:continue;
             }
             printf("\n");
         }
@@ -110,7 +111,7 @@ int inputTable() {
 
         printf("Which table would you like to book? endor(1), naboo(2) or tatooine(3) \n");
         fflush(stdin);
-        gets(tableInput);
+        scanf("%8s",&tableInput);
         for(int i=0;i<8;i++) {
             tableInput[i]=tolower(tableInput[i]);
         }
@@ -135,7 +136,7 @@ int inputTable() {
             break;
             case 3:printf("Tatooine selected \n");
             break;
-            default:
+            default:continue;
         }
     }
     while(table==0);
@@ -155,13 +156,13 @@ int inputTime() {
     return timeInput;
 }
 //prompts the user for a booking id which exists in the system, and has breakfast board
-int inputId() {
-    int idInput=0;
+void inputId() {
+    char idInput[23];
     int valid=0;
     printf("Please enter booking id: \n");
     do {
         fflush(stdin);
-        scanf("%d", &idInput);
+        scanf("%s[22]", &idInput);
         if(idInput==0) {
             valid=0;
         }
@@ -176,15 +177,23 @@ int inputId() {
         }
     }
     while(valid!=1);
-    return idInput;
+    for(int i=0;i<22;i++)
+    {
+        id[i]=idInput[i];
+    }
+
 }
 //updates the list of booked tables with the entered information
-int updateTables(int id,int table,int time) {
-        if (bookedTables[table-1][time-1]!=0) {
+int updateTables(char id[23],int table,int time) {
+        if (bookedTables[table-1][time-1][0]==1) {
             printf("Table already booked, please enter an available table \n");
             return 0;
         }
-    bookedTables[table-1][time-1]=id;
+    bookedTables[table-1][time-1][0]=1;
+    for(int i=0;i<23;i++)
+    {
+        bookedTables[table-1][time-1][i+1]=id[i];
+    }
     printf("Table successfully booked \n\n\n\n");
     return 1;
 }
@@ -202,16 +211,16 @@ void displayBookedTables() {
                     break;
                     case 2:printf("Tatooine at ");
                     break;
-                    default:
+                    default:continue;
                 }
                 switch(j) {
                     case 0:printf("7 pm");
                     break;
                     case 1:printf("9 pm");
                     break;
-                    default:
+                    default:continue;
                 }
-                printf(":booking id %d \n",bookedTables[i][j]);
+                printf(":booking id %22s \n",bookedTables[i][j]);
             }
         }
     }
@@ -219,3 +228,4 @@ void displayBookedTables() {
         printf("All tables available \n");
     }
 }
+
